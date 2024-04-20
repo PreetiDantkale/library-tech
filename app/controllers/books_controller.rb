@@ -14,7 +14,6 @@ class BooksController < ApplicationController
   def borrow
     book = Book.find(params[:id])
     user = User.find(params[:user_id])
-
     if user.borrowed_books.count >= 2
       render json: { error: "Borrowing limit reached" }, status: :unprocessable_entity
     elsif book.copies_available <= 0
@@ -29,14 +28,12 @@ class BooksController < ApplicationController
   # DELETE /books/:id/return
   def return
     borrowed_book = BorrowedBook.find_by(id: params[:id])
-    
     if borrowed_book.nil?
       render json: { error: "Borrowed book not found" }, status: :not_found
     else
       book = borrowed_book.book
       borrowed_book.destroy
       book.increment!(:copies)
-
       render json: { message: "Book returned successfully" }, status: :ok
     end
   end

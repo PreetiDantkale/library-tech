@@ -30,6 +30,7 @@ RSpec.describe BooksController, type: :controller do
       it "adds the book to the user's borrowed list and removes it from the library" do
         post :borrow, params: { id: book.id, user_id: user.id }
         expect(response).to have_http_status(:created)
+        expect(response.body).to include("Book borrowed successfully")
         expect(user.borrowed_books.count).to eq(1)
         expect(book.reload.copies).to eq(4)
       end
@@ -41,6 +42,7 @@ RSpec.describe BooksController, type: :controller do
       it "returns an error" do
         post :borrow, params: { id: book.id, user_id: user.id  }
         expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include("Borrowing limit reached")
         expect(user.borrowed_books.count).to eq(2)
         expect(book.reload.copies).to eq(5)
       end
@@ -50,6 +52,7 @@ RSpec.describe BooksController, type: :controller do
       it "adds one copy of the book to the user's borrowed list and decrements the library copies" do
         post :borrow, params: { id: book.id, user_id: user.id  }
         expect(response).to have_http_status(:created)
+        expect(response.body).to include("Book borrowed successfully")
         expect(user.borrowed_books.count).to eq(1)
         expect(book.reload.copies).to eq(4)
       end
@@ -61,6 +64,7 @@ RSpec.describe BooksController, type: :controller do
       it "adds the book to the user's borrowed list and removes it from the library" do
         post :borrow, params: { id: book.id, user_id: user.id  }
         expect(response).to have_http_status(:created)
+        expect(response.body).to include("Book borrowed successfully")
         expect(user.borrowed_books.count).to eq(1)
         expect(book.reload.copies).to eq(0)
       end
@@ -77,8 +81,8 @@ RSpec.describe BooksController, type: :controller do
     context "when returning one book" do
       it "removes the book from the user's borrowed list and increments the library copies" do
         delete :return, params: { id: borrowed_book1.id }
-        expect(response).to have_http_status(:ok) # Updated to expect :ok status
-        expect(response.body).to include("Book returned successfully") # Check for success message in response
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("Book returned successfully")
         expect(user.borrowed_books.count).to eq(1)
         expect(book1.reload.copies).to eq(2)
       end
@@ -88,8 +92,8 @@ RSpec.describe BooksController, type: :controller do
       it "empties the user's borrowed list and increments the library copies" do
         delete :return, params: { id: borrowed_book1.id }
         delete :return, params: { id: borrowed_book2.id }
-        expect(response).to have_http_status(:ok) # Updated to expect :ok status
-        expect(response.body).to include("Book returned successfully") # Check for success message in response
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("Book returned successfully")
         expect(user.borrowed_books.count).to eq(0)
         expect(book1.reload.copies).to eq(2)
         expect(book2.reload.copies).to eq(2)
