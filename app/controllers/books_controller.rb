@@ -13,13 +13,13 @@ class BooksController < ApplicationController
   # POST /books/:id/borrow
   def borrow
     book = Book.find(params[:id])
-    user = User.find(params[:user_id])
-    if user.borrowed_books.count >= 2
+    set_user
+    if @user.borrowed_books.count >= 2
       render json: { error: "Borrowing limit reached" }, status: :unprocessable_entity
     elsif book.copies_available <= 0
       render json: { error: "No copies of the book available" }, status: :unprocessable_entity
     else
-      borrowed_book = user.borrowed_books.create(book: book)
+      borrowed_book = @user.borrowed_books.create(book: book)
       book.decrement!(:copies)
       render json: { message: "Book borrowed successfully", borrowed_book_id: borrowed_book.id }, status: :created
     end
@@ -36,5 +36,11 @@ class BooksController < ApplicationController
       book.increment!(:copies)
       render json: { message: "Book returned successfully" }, status: :ok
     end
+  end
+
+  private
+
+  def set_user
+    @user = User.find(params[:user_id])
   end
 end
