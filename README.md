@@ -3,11 +3,6 @@
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
-Things you may want to cover:
-
-
-Certainly! Here's an improved version of the architectural decisions section in the README file:
-
 Architectural Decisions
 Models and Associations
 User Model
